@@ -37,7 +37,7 @@ RUN groupadd -g $PGID developer && \
 
 RUN apt-get update -yqq && \
     apt-get install -y apt-utils dialog && \
-    apt-get install -y sudo mc wget rsync \
+    apt-get install -y sudo mc wget rsync ssmtp \
         iputils-ping telnet dnsutils tcpdump htop \
         apt-transport-https ca-certificates \
         python-software-properties software-properties-common \
@@ -49,6 +49,7 @@ RUN apt-get update -yqq && \
 ADD logrotate.d/* /etc/logrotate.d/
 ADD supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 ADD supervisor/conf.d/* /etc/supervisor/conf.d/
+ADD ssmtp/ /etc/ssmtp/
 
 
 #####################################
