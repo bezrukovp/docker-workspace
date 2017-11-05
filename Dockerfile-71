@@ -26,9 +26,14 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Add a non-root user to prevent files being created with root permissions on host machine.
 ARG PUID=1000
 ARG PGID=1000
+
+ADD developer/ /var/developer/
+
 RUN groupadd -g $PGID developer && \
     useradd -u $PUID -g developer -m developer -s /bin/bash && \
-    echo "developer:$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13)" | chpasswd
+    echo "developer:$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13)" | chpasswd && \
+    echo "source /var/developer/.profile" >> /home/developer/.profile && \
+    chown -R developer:developer /var/developer/
 
 
 #####################################
@@ -46,6 +51,7 @@ RUN apt-get update -yqq && \
     echo 'developer ALL = NOPASSWD: ALL' >> /etc/sudoers.d/developer && \
     usermod -aG sudo developer
 
+ADD etc/* /etc/
 ADD logrotate.d/* /etc/logrotate.d/
 ADD supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 ADD supervisor/conf.d/* /etc/supervisor/conf.d/
