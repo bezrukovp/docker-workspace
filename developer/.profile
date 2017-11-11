@@ -97,6 +97,7 @@ function fs() {
 }
 
 # Include extend profile source
-if [ -f ./.profile_ext ]; then
-    source ./.profile_ext
+PROFILE_EXT="${BASH_SOURCE[0]}_ext"
+if [ -f $PROFILE_EXT ]; then
+    source $PROFILE_EXT
 fi
