@@ -42,9 +42,9 @@ RUN groupadd -g $PGID developer && \
 
 RUN apt-get update -yqq && \
     apt-get install -y apt-utils dialog && \
-    apt-get install -y sudo mc wget rsync ssmtp \
+    apt-get install -y sudo mc wget rsync ssmtp mysql-client \
         iputils-ping telnet dnsutils tcpdump htop \
-        apt-transport-https ca-certificates \
+        apt-transport-https ca-certificates tmux screen \
         python-software-properties software-properties-common \
         supervisor && mkdir -p /var/log/supervisor \
     echo '#developer' > /etc/sudoers.d/developer && \
