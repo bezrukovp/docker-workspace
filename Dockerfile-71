@@ -2,12 +2,27 @@ FROM laradock/workspace:1.8-71
 
 MAINTAINER Pavel Bezrukov, https://bezr.pro
 
-RUN locale-gen ru_RU.UTF-8
 
-ENV LANGUAGE=ru_RU.UTF-8
-ENV LC_ALL=ru_RU.UTF-8
-ENV LC_CTYPE=ru_RU.UTF-8
-ENV LANG=ru_RU.UTF-8
+#####################################
+# Set Language
+#####################################
+
+ARG LANG=ru_RU.UTF-8
+ARG LANGUAGE=ru_RU:ru
+
+RUN apt-get update -yqq && \
+    apt-get install -y apt-utils locales && \
+    locale-gen --purge $LANG en_US.UTF-8 && \
+    sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
+    sed -i -e "s/# $LANG UTF-8/$LANG UTF-8/" /etc/locale.gen && \
+    echo -e "LANG=\"$LANG\"\nLANGUAGE=\"$LANGUAGE\"\n" > /etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=$LANG
+
+ENV LANG=${LANG}
+ENV LANGUAGE=${LANGUAGE}
+ENV LC_ALL=${LANG}
+ENV LC_CTYPE=${LANG}
 
 
 #####################################
@@ -16,7 +31,9 @@ ENV LANG=ru_RU.UTF-8
 
 ARG TZ=Europe/Moscow
 ENV TZ ${TZ}
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 
 #####################################
@@ -40,8 +57,7 @@ RUN groupadd -g $PGID developer && \
 # Additional base apps
 #####################################
 
-RUN apt-get update -yqq && \
-    apt-get install -y apt-utils dialog && \
+RUN apt-get install -y apt-utils dialog && \
     apt-get install -y sudo mc wget rsync ssmtp mysql-client \
         iputils-ping telnet dnsutils tcpdump htop \
         apt-transport-https ca-certificates tmux screen \
@@ -56,6 +72,7 @@ ADD logrotate.d/* /etc/logrotate.d/
 ADD supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 ADD supervisor/conf.d/* /etc/supervisor/conf.d/
 ADD ssmtp/ /etc/ssmtp/
+
 
 #####################################
 # Install memcache
@@ -103,6 +120,7 @@ RUN \
     echo 'export NVM_DIR="/home/developer/.nvm"' >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
 
+
 #####################################
 # YARN:
 #####################################
@@ -129,6 +147,15 @@ RUN \
     echo "" >> ~/.bashrc && \
     echo 'export YARN_DIR="/home/developer/.yarn"' >> ~/.bashrc && \
     echo 'export PATH="$YARN_DIR/bin:$PATH"' >> ~/.bashrc
+
+
+#####################################
+# Image compression:
+#####################################
+
+RUN \
+    apt-get install -y jpegoptim optipng
+
 
 #
 #--------------------------------------------------------------------------
