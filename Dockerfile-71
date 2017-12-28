@@ -7,22 +7,22 @@ MAINTAINER Pavel Bezrukov, https://bezr.pro
 # Set Language
 #####################################
 
-ARG LANG=ru_RU.UTF-8
-ARG LANGUAGE=ru_RU:ru
+ARG lang=ru_RU.UTF-8
+ARG language=ru_RU:ru
+
+ENV LANG=${lang}
+ENV LANGUAGE=${language}
+ENV LC_ALL=${lang}
+ENV LC_CTYPE=${lang}
 
 RUN apt-get update -yqq && \
     apt-get install -y apt-utils locales && \
-    locale-gen --purge $LANG en_US.UTF-8 && \
+    locale-gen --purge ${lang} en_US.UTF-8 && \
     sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
-    sed -i -e "s/# $LANG UTF-8/$LANG UTF-8/" /etc/locale.gen && \
-    echo -e "LANG=\"$LANG\"\nLANGUAGE=\"$LANGUAGE\"\n" > /etc/default/locale && \
+    sed -i -e "s/# ${lang} UTF-8/${lang} UTF-8/" /etc/locale.gen && \
+    echo -e "LANG=\"${lang}\"\nLANGUAGE=\"${language}\"\n" > /etc/default/locale && \
     dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=$LANG
-
-ENV LANG=${LANG}
-ENV LANGUAGE=${LANGUAGE}
-ENV LC_ALL=${LANG}
-ENV LC_CTYPE=${LANG}
+    update-locale LANG=${lang}
 
 
 #####################################
